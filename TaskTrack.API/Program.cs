@@ -3,6 +3,9 @@ using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using TaskTrack.API.Middlewares;
 using TaskTrack.Repo;
+using TaskTrack.Repo.Repositories;
+using TaskTrack.Service.Implementations;
+using TaskTrack.Service.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +16,12 @@ if (!string.IsNullOrWhiteSpace(databaseUrl))
     connectionString = ToNpgsqlConnectionString(databaseUrl);
 
 builder.Services.AddDbContext<TaskManagementDbContext>(options => options.UseNpgsql(connectionString));
+
+// Repositories
+builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+
+// Services
+builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL");
