@@ -9,6 +9,11 @@ using TaskTrack.Service.Interfaces;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Render injects the port to listen on through PORT.
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrWhiteSpace(port))
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+
 // Connection string: appsettings.json by default, overridden by DATABASE_URL on Render.
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 var databaseUrl = Environment.GetEnvironmentVariable("DATABASE_URL");
@@ -72,6 +77,7 @@ static string ToNpgsqlConnectionString(string url)
         Database = uri.AbsolutePath.TrimStart('/'),
         Username = Uri.UnescapeDataString(userInfo[0]),
         Password = userInfo.Length > 1 ? Uri.UnescapeDataString(userInfo[1]) : null,
-        SslMode = SslMode.Require,
+        // Prefer: use SSL when the server offers it (Render), plain connection otherwise.
+        SslMode = SslMode.Prefer,
     }.ToString();
 }
