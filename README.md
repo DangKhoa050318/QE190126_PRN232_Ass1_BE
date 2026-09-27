@@ -4,7 +4,11 @@ ASP.NET Core Web API (.NET 8) + EF Core (Database-First) + PostgreSQL for the Ta
 All endpoints are public (no authentication).
 
 - **Student:** QE190126 — **Class:** PRN232
+- **Live API (Swagger):** https://qe190126-tasktrack-api.onrender.com/swagger
+- **Live frontend:** https://qe190126prn232ass1.vercel.app
 - **Frontend repo:** https://github.com/DangKhoa050318/QE190126_PRN232_Ass1_FE
+
+> Hosted on Render's free plan: the service sleeps when idle, so the first request can take up to a minute.
 
 ## Solution structure
 
