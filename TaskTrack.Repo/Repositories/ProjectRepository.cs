@@ -38,6 +38,9 @@ public class ProjectRepository(TaskManagementDbContext context) : IProjectReposi
                 .ThenInclude(t => t.Tags)
             .FirstOrDefaultAsync(p => p.ProjectId == id);
 
+    public Task<bool> ExistsAsync(int id) =>
+        context.Projects.AnyAsync(p => p.ProjectId == id);
+
     /// <summary>Soft-deleted tasks still count: the foreign key would block a hard delete.</summary>
     public Task<bool> HasTasksAsync(int id) =>
         context.Tasks.AnyAsync(t => t.ProjectId == id);

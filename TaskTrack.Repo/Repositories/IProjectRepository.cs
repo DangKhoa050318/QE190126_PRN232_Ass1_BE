@@ -10,6 +10,7 @@ public interface IProjectRepository
     Task<List<Project>> SearchAsync(string? name, short? status, int? departmentId, bool includeInactive = false);
     Task<Project?> GetByIdAsync(int id);
     Task<Project?> GetWithTasksAsync(int id);
+    Task<bool> ExistsAsync(int id);
     Task<bool> HasTasksAsync(int id);
     Task<Project> AddAsync(Project project);
     Task<Project> UpdateAsync(Project project);

@@ -1,3 +1,5 @@
+using System.ComponentModel.DataAnnotations;
+
 namespace TaskTrack.Service.DTOs;
 
 public class TaskDto
@@ -16,4 +18,28 @@ public class TaskDto
     public DateTime CreatedDate { get; set; }
     public DateTime? ModifiedDate { get; set; }
     public List<TagDto> Tags { get; set; } = [];
+}
+
+/// <summary>Body for both create and update; on update the tag list replaces the existing tags.</summary>
+public class TaskRequest
+{
+    [Required(ErrorMessage = "Title is required.")]
+    [StringLength(300, ErrorMessage = "Title must not exceed 300 characters.")]
+    public string Title { get; set; } = string.Empty;
+
+    public string? Description { get; set; }
+
+    [Range(0, 3, ErrorMessage = "Status must be 0 (To Do), 1 (In Progress), 2 (Done) or 3 (Cancelled).")]
+    public short Status { get; set; } = 0;
+
+    [Range(0, 3, ErrorMessage = "Priority must be 0 (Low), 1 (Medium), 2 (High) or 3 (Critical).")]
+    public short Priority { get; set; } = 1;
+
+    public DateOnly? DueDate { get; set; }
+
+    [Required(ErrorMessage = "Project is required.")]
+    [Range(1, int.MaxValue, ErrorMessage = "Project is required.")]
+    public int? ProjectId { get; set; }
+
+    public List<int>? TagIds { get; set; }
 }
