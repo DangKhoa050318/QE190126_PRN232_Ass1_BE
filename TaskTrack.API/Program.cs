@@ -1,5 +1,7 @@
+using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
+using TaskTrack.API.Middlewares;
 using TaskTrack.Repo;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -20,11 +22,15 @@ if (!string.IsNullOrWhiteSpace(frontendUrl))
 builder.Services.AddCors(options =>
     options.AddPolicy("Frontend", policy => policy.WithOrigins(allowedOrigins).AllowAnyHeader().AllowAnyMethod()));
 
-builder.Services.AddControllers();
+// Use JSON (camelCase) property names as keys in validation error responses.
+builder.Services.AddControllers(options =>
+    options.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider()));
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionHandlingMiddleware>();
 
 // Swagger is also kept on in Production so the Render URL can be verified.
 app.UseSwagger();
