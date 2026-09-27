@@ -1,0 +1,65 @@
+digraph ERD {
+  graph [rankdir=LR, bgcolor="white", pad="0.4", nodesep="0.6", ranksep="1.1", fontname="Helvetica"];
+  node  [shape=plain, fontname="Helvetica", fontsize=11];
+  edge  [fontname="Helvetica", fontsize=10, color="#555555", arrowhead=crow, arrowtail=tee, dir=both];
+
+  Department [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="6" color="#94A3B8">
+      <tr><td bgcolor="#1E3A8A" colspan="2"><font color="white"><b>Department</b></font></td></tr>
+      <tr><td align="left"><b>PK</b> DepartmentID</td><td align="left" port="pk">serial</td></tr>
+      <tr><td align="left">DepartmentName</td><td align="left">varchar(100)</td></tr>
+      <tr><td align="left">DepartmentDescription</td><td align="left">varchar(300)</td></tr>
+      <tr><td align="left">IsActive</td><td align="left">boolean</td></tr>
+    </table>>];
+
+  Project [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="6" color="#94A3B8">
+      <tr><td bgcolor="#1E3A8A" colspan="2"><font color="white"><b>Project</b></font></td></tr>
+      <tr><td align="left"><b>PK</b> ProjectID</td><td align="left" port="pk">serial</td></tr>
+      <tr><td align="left">ProjectName</td><td align="left">varchar(200)</td></tr>
+      <tr><td align="left">Description</td><td align="left">text</td></tr>
+      <tr><td align="left">StartDate</td><td align="left">date</td></tr>
+      <tr><td align="left">EndDate</td><td align="left">date</td></tr>
+      <tr><td align="left">Status</td><td align="left">smallint</td></tr>
+      <tr><td align="left" port="fk"><b>FK</b> DepartmentID</td><td align="left">int</td></tr>
+      <tr><td align="left">IsActive</td><td align="left">boolean</td></tr>
+      <tr><td align="left">CreatedDate</td><td align="left">timestamp</td></tr>
+    </table>>];
+
+  Task [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="6" color="#94A3B8">
+      <tr><td bgcolor="#1E3A8A" colspan="2"><font color="white"><b>Task</b></font></td></tr>
+      <tr><td align="left"><b>PK</b> TaskID</td><td align="left" port="pk">serial</td></tr>
+      <tr><td align="left">Title</td><td align="left">varchar(300)</td></tr>
+      <tr><td align="left">Description</td><td align="left">text</td></tr>
+      <tr><td align="left">Status</td><td align="left">smallint</td></tr>
+      <tr><td align="left">Priority</td><td align="left">smallint</td></tr>
+      <tr><td align="left">DueDate</td><td align="left">date</td></tr>
+      <tr><td align="left" port="fk"><b>FK</b> ProjectID</td><td align="left">int</td></tr>
+      <tr><td align="left">IsActive</td><td align="left">boolean</td></tr>
+      <tr><td align="left">CreatedDate</td><td align="left">timestamp</td></tr>
+      <tr><td align="left">ModifiedDate</td><td align="left">timestamp</td></tr>
+    </table>>];
+
+  TaskTag [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="6" color="#94A3B8">
+      <tr><td bgcolor="#0F766E" colspan="2"><font color="white"><b>TaskTag</b></font></td></tr>
+      <tr><td align="left" port="task"><b>PK, FK</b> TaskID</td><td align="left">int</td></tr>
+      <tr><td align="left" port="tag"><b>PK, FK</b> TagID</td><td align="left">int</td></tr>
+    </table>>];
+
+  Tag [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="6" color="#94A3B8">
+      <tr><td bgcolor="#1E3A8A" colspan="2"><font color="white"><b>Tag</b></font></td></tr>
+      <tr><td align="left"><b>PK</b> TagID</td><td align="left" port="pk">serial</td></tr>
+      <tr><td align="left">TagName (unique)</td><td align="left">varchar(50)</td></tr>
+      <tr><td align="left">Color</td><td align="left">varchar(7)</td></tr>
+    </table>>];
+
+  { rank=same; Task; Tag; }
+
+  Department:pk:e -> Project:fk:w [label="1 : N"];
+  Project:pk:e -> Task:fk:w    [label="1 : N"];
+  Task:pk:e -> TaskTag:task:w [label="1 : N"];
+  Tag:pk:e -> TaskTag:tag:w  [label="1 : N"];
+}
