@@ -40,4 +40,19 @@ public static class MappingExtensions
         CreatedDate = p.CreatedDate,
         TaskCount = p.Tasks.Count(t => t.IsActive),
     };
+
+    public static TagDto ToDto(this Tag t) => new()
+    {
+        TagId = t.TagId,
+        TagName = t.TagName,
+        Color = t.Color,
+    };
+
+    public static TagWithUsageDto ToUsageDto(this Tag t) => new()
+    {
+        TagId = t.TagId,
+        TagName = t.TagName,
+        Color = t.Color,
+        TaskCount = t.Tasks.Count,
+    };
 }

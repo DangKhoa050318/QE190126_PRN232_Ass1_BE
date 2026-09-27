@@ -19,9 +19,11 @@ builder.Services.AddDbContext<TaskManagementDbContext>(options => options.UseNpg
 
 // Repositories
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
+builder.Services.AddScoped<ITagRepository, TagRepository>();
 
 // Services
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
+builder.Services.AddScoped<ITagService, TagService>();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL");
