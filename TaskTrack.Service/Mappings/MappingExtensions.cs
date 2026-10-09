@@ -6,6 +6,16 @@ namespace TaskTrack.Service.Mappings;
 
 public static class MappingExtensions
 {
+    public static AccountDto ToDto(this SystemAccount a) => new()
+    {
+        AccountId = a.AccountId,
+        FullName = a.FullName,
+        Email = a.Email,
+        Role = a.Role,
+        RoleName = AccountRoles.Name(a.Role),
+        CreatedDate = a.CreatedDate,
+    };
+
     public static DepartmentDto ToDto(this Department d) => new()
     {
         DepartmentId = d.DepartmentId,

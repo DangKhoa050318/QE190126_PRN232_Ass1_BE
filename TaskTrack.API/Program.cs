@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Metadata;
 using Microsoft.EntityFrameworkCore;
 using Npgsql;
 using TaskTrack.API.Middlewares;
+using TaskTrack.API.Security;
 using TaskTrack.Repo;
 using TaskTrack.Repo.Repositories;
 using TaskTrack.Service.Implementations;
@@ -22,17 +23,24 @@ if (!string.IsNullOrWhiteSpace(databaseUrl))
 
 builder.Services.AddDbContext<TaskManagementDbContext>(options => options.UseNpgsql(connectionString));
 
+// JWT: secret from the JWT_SECRET environment variable (Render) or appsettings.Development.json (local).
+builder.Services.AddJwtAuthentication(builder.Configuration.GetJwtOptions());
+
 // Repositories
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();
 builder.Services.AddScoped<IProjectRepository, ProjectRepository>();
 builder.Services.AddScoped<ITaskRepository, TaskRepository>();
 builder.Services.AddScoped<ITagRepository, TagRepository>();
+builder.Services.AddScoped<ISystemAccountRepository, SystemAccountRepository>();
 
 // Services
 builder.Services.AddScoped<IDepartmentService, DepartmentService>();
 builder.Services.AddScoped<IProjectService, ProjectService>();
 builder.Services.AddScoped<ITaskService, TaskService>();
 builder.Services.AddScoped<ITagService, TagService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddSingleton<IPasswordHasher, BcryptPasswordHasher>();
+builder.Services.AddSingleton<ITokenService, JwtTokenService>();
 
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
 var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL");
@@ -46,7 +54,7 @@ builder.Services.AddCors(options =>
 builder.Services.AddControllers(options =>
     options.ModelMetadataDetailsProviders.Add(new SystemTextJsonValidationMetadataProvider()));
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerWithJwt();
 
 var app = builder.Build();
 
@@ -56,7 +64,10 @@ app.UseMiddleware<ExceptionHandlingMiddleware>();
 app.UseSwagger();
 app.UseSwaggerUI();
 
+// CORS before authentication so 401/403 responses still carry CORS headers for the frontend.
 app.UseCors("Frontend");
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 app.MapGet("/", () => Results.Redirect("/swagger"));
 
