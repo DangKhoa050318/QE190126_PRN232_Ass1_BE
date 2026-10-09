@@ -17,6 +17,13 @@ public class TaskDto
     public bool IsActive { get; set; }
     public DateTime CreatedDate { get; set; }
     public DateTime? ModifiedDate { get; set; }
+
+    // Audit: who created / last changed the task (null for seed data created before accounts existed).
+    public int? CreatedById { get; set; }
+    public string? CreatedByName { get; set; }
+    public int? UpdatedById { get; set; }
+    public string? UpdatedByName { get; set; }
+
     public List<TagDto> Tags { get; set; } = [];
 }
 

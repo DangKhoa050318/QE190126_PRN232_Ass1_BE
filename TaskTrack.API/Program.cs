@@ -25,6 +25,8 @@ builder.Services.AddDbContext<TaskManagementDbContext>(options => options.UseNpg
 
 // JWT: secret from the JWT_SECRET environment variable (Render) or appsettings.Development.json (local).
 builder.Services.AddJwtAuthentication(builder.Configuration.GetJwtOptions());
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<ICurrentUser, HttpContextCurrentUser>();
 
 // Repositories
 builder.Services.AddScoped<IDepartmentRepository, DepartmentRepository>();

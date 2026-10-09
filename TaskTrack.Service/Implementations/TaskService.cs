@@ -11,7 +11,8 @@ namespace TaskTrack.Service.Implementations;
 public class TaskService(
     ITaskRepository repository,
     IProjectRepository projectRepository,
-    ITagRepository tagRepository) : ITaskService
+    ITagRepository tagRepository,
+    ICurrentUser currentUser) : ITaskService
 {
     public async Task<List<TaskDto>> GetAllAsync(short? status = null) =>
         (await repository.GetAllAsync(status)).Select(t => t.ToDto()).ToList();
@@ -36,6 +37,7 @@ public class TaskService(
         {
             IsActive = true,
             CreatedDate = Clock.Now,
+            CreatedById = currentUser.AccountId,
             Tags = await LoadTagsAsync(request.TagIds),
         };
         Apply(task, request);
@@ -51,6 +53,7 @@ public class TaskService(
 
         Apply(task, request);
         task.ModifiedDate = Clock.Now;
+        task.UpdatedById = currentUser.AccountId;
         task.Tags.Clear();
         foreach (var tag in tags)
             task.Tags.Add(tag);
@@ -65,6 +68,7 @@ public class TaskService(
         var task = await GetActiveAsync(id);
         task.IsActive = false;
         task.ModifiedDate = Clock.Now;
+        task.UpdatedById = currentUser.AccountId;
         await repository.UpdateAsync(task);
     }
 

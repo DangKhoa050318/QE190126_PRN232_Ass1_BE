@@ -87,6 +87,10 @@ public static class MappingExtensions
         IsActive = t.IsActive,
         CreatedDate = t.CreatedDate,
         ModifiedDate = t.ModifiedDate,
+        CreatedById = t.CreatedById,
+        CreatedByName = t.CreatedBy?.FullName,
+        UpdatedById = t.UpdatedById,
+        UpdatedByName = t.UpdatedBy?.FullName,
         Tags = t.Tags.OrderBy(tag => tag.TagName).Select(tag => tag.ToDto()).ToList(),
     };
 

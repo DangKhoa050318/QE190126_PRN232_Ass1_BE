@@ -37,6 +37,8 @@ public class TaskRepository(TaskManagementDbContext context) : ITaskRepository
         context.Tasks
             .Include(t => t.Project)
             .Include(t => t.Tags)
+            .Include(t => t.CreatedBy)
+            .Include(t => t.UpdatedBy)
             .FirstOrDefaultAsync(t => t.TaskId == id);
 
     public async Task<TaskItem> AddAsync(TaskItem task)
@@ -57,6 +59,8 @@ public class TaskRepository(TaskManagementDbContext context) : ITaskRepository
         context.Tasks.AsNoTracking()
             .Include(t => t.Project)
             .Include(t => t.Tags)
+            .Include(t => t.CreatedBy)
+            .Include(t => t.UpdatedBy)
             .Where(t => t.IsActive)
             .OrderBy(t => t.TaskId);
 }
