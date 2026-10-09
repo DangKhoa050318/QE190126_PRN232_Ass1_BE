@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskTrack.Service.DTOs;
 using TaskTrack.Service.Interfaces;
 
 namespace TaskTrack.API.Controllers;
 
+/// <remarks>GET endpoints are public; POST, PUT and DELETE require a logged-in user (JWT).</remarks>
 [ApiController]
 [Route("api/departments")]
 public class DepartmentsController(IDepartmentService service) : ControllerBase
@@ -23,6 +25,7 @@ public class DepartmentsController(IDepartmentService service) : ControllerBase
     public async Task<ActionResult<DepartmentDetailDto>> GetById(int id) =>
         Ok(await service.GetByIdAsync(id));
 
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<DepartmentDto>> Create(CreateDepartmentRequest request)
     {
@@ -30,11 +33,13 @@ public class DepartmentsController(IDepartmentService service) : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = created.DepartmentId }, created);
     }
 
+    [Authorize]
     [HttpPut("{id:int}")]
     public async Task<ActionResult<DepartmentDto>> Update(int id, UpdateDepartmentRequest request) =>
         Ok(await service.UpdateAsync(id, request));
 
     /// <summary>Delete a department; returns 400 if any project is still linked to it.</summary>
+    [Authorize]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {

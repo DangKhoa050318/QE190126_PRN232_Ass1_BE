@@ -1,9 +1,11 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskTrack.Service.DTOs;
 using TaskTrack.Service.Interfaces;
 
 namespace TaskTrack.API.Controllers;
 
+/// <remarks>GET endpoints are public; POST, PUT and DELETE require a logged-in user (JWT).</remarks>
 [ApiController]
 [Route("api/tasks")]
 public class TasksController(ITaskService service) : ControllerBase
@@ -31,6 +33,7 @@ public class TasksController(ITaskService service) : ControllerBase
         Ok(await service.GetByIdAsync(id));
 
     /// <summary>Create a task; tagIds is optional.</summary>
+    [Authorize]
     [HttpPost]
     public async Task<ActionResult<TaskDto>> Create(TaskRequest request)
     {
@@ -39,11 +42,13 @@ public class TasksController(ITaskService service) : ControllerBase
     }
 
     /// <summary>Update a task, replace its tags and set ModifiedDate.</summary>
+    [Authorize]
     [HttpPut("{id:int}")]
     public async Task<ActionResult<TaskDto>> Update(int id, TaskRequest request) =>
         Ok(await service.UpdateAsync(id, request));
 
     /// <summary>Soft delete: sets IsActive = false.</summary>
+    [Authorize]
     [HttpDelete("{id:int}")]
     public async Task<IActionResult> Delete(int id)
     {
