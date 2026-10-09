@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using TaskTrack.Service.DTOs;
 using TaskTrack.Service.Interfaces;
@@ -32,6 +33,24 @@ public class AuthController(IAuthService service) : ControllerBase
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<AuthResponse>> Refresh(RefreshTokenRequest request) =>
         Ok(await service.RefreshAsync(request));
+
+    /// <summary>The logged-in account.</summary>
+    [Authorize]
+    [HttpGet("me")]
+    public async Task<ActionResult<AccountDto>> GetProfile() =>
+        Ok(await service.GetProfileAsync());
+
+    /// <summary>Update the logged-in account's full name.</summary>
+    [Authorize]
+    [HttpPut("me")]
+    public async Task<ActionResult<AccountDto>> UpdateProfile(UpdateProfileRequest request) =>
+        Ok(await service.UpdateProfileAsync(request));
+
+    /// <summary>Change the password (current password required). Other sessions are signed out; returns new tokens.</summary>
+    [Authorize]
+    [HttpPut("me/password")]
+    public async Task<ActionResult<AuthResponse>> ChangePassword(ChangePasswordRequest request) =>
+        Ok(await service.ChangePasswordAsync(request));
 
     /// <summary>Log out: revoke the refresh token. Always returns 204.</summary>
     [HttpPost("logout")]

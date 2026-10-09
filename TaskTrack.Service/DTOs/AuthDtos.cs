@@ -28,6 +28,30 @@ public class LoginRequest
     public string Password { get; set; } = string.Empty;
 }
 
+public class UpdateProfileRequest
+{
+    [Required(ErrorMessage = "Full name is required.")]
+    [StringLength(100, ErrorMessage = "Full name must not exceed 100 characters.")]
+    public string FullName { get; set; } = string.Empty;
+}
+
+public class ChangePasswordRequest : IValidatableObject
+{
+    [Required(ErrorMessage = "Current password is required.")]
+    public string CurrentPassword { get; set; } = string.Empty;
+
+    [Required(ErrorMessage = "New password is required.")]
+    [StringLength(72, MinimumLength = 8, ErrorMessage = "New password must be between 8 and 72 characters.")]
+    public string NewPassword { get; set; } = string.Empty;
+
+    // Member name is the JSON (camelCase) name so it matches the other field-level error keys.
+    public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+    {
+        if (NewPassword == CurrentPassword)
+            yield return new ValidationResult("New password must be different from the current password.", ["newPassword"]);
+    }
+}
+
 public class RefreshTokenRequest
 {
     [Required(ErrorMessage = "Refresh token is required.")]

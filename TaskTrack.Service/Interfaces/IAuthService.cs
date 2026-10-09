@@ -15,6 +15,14 @@ public interface IAuthService
     /// <summary>Revokes the refresh token so the session cannot be extended any more.</summary>
     Task LogoutAsync(RefreshTokenRequest request);
 
+    /// <summary>The logged-in account.</summary>
+    Task<AccountDto> GetProfileAsync();
+
+    Task<AccountDto> UpdateProfileAsync(UpdateProfileRequest request);
+
+    /// <summary>Checks the current password, signs out every other session and returns new tokens for this one.</summary>
+    Task<AuthResponse> ChangePasswordAsync(ChangePasswordRequest request);
+
     /// <summary>Current state of an account, used to validate the account behind a JWT; null if it was deleted.</summary>
     Task<AccountDto?> FindAccountAsync(int accountId);
 }

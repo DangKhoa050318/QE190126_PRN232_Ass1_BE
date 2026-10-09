@@ -15,6 +15,7 @@ public class AuthService(
     IRefreshTokenRepository refreshTokens,
     IPasswordHasher passwordHasher,
     ITokenService tokenService,
+    ICurrentUser currentUser,
     JwtOptions jwt) : IAuthService
 {
     // A revoked refresh token presented again within this window is most likely two browser tabs refreshing
@@ -99,6 +100,30 @@ public class AuthService(
         }
     }
 
+    public async Task<AccountDto> GetProfileAsync() => (await CurrentAccountAsync()).ToDto();
+
+    public async Task<AccountDto> UpdateProfileAsync(UpdateProfileRequest request)
+    {
+        var account = await CurrentAccountAsync();
+        account.FullName = request.FullName.Trim();
+        await accounts.UpdateAsync(account);
+        return account.ToDto();
+    }
+
+    public async Task<AuthResponse> ChangePasswordAsync(ChangePasswordRequest request)
+    {
+        var account = await CurrentAccountAsync();
+        if (!passwordHasher.Verify(request.CurrentPassword, account.PasswordHash))
+            throw new ValidationFailedException("currentPassword", "Current password is incorrect.");
+
+        account.PasswordHash = passwordHasher.Hash(request.NewPassword);
+        await accounts.UpdateAsync(account);
+
+        // Every other session must log in again with the new password; this one continues with new tokens.
+        await refreshTokens.RevokeAllAsync(account.AccountId, Clock.Now);
+        return await IssueTokensAsync(account);
+    }
+
     public async Task<AccountDto?> FindAccountAsync(int accountId) =>
         (await accounts.FindByIdAsync(accountId))?.ToDto();
 
@@ -125,6 +150,13 @@ public class AuthService(
             RefreshTokenExpiresAt = DateTime.UtcNow.AddDays(jwt.RefreshTokenDays),
             Account = account.ToDto(),
         };
+    }
+
+    private async Task<SystemAccount> CurrentAccountAsync()
+    {
+        var id = currentUser.AccountId ?? throw new UnauthorizedException("Authentication is required.");
+        return await accounts.GetByIdAsync(id)
+               ?? throw new UnauthorizedException("The account for this token no longer exists.");
     }
 
     private static string NormalizeEmail(string email) => email.Trim().ToLowerInvariant();
