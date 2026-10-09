@@ -16,6 +16,17 @@ public static class MappingExtensions
         CreatedDate = a.CreatedDate,
     };
 
+    public static AccountDetailDto ToDetailDto(this SystemAccount a, int createdTaskCount) => new()
+    {
+        AccountId = a.AccountId,
+        FullName = a.FullName,
+        Email = a.Email,
+        Role = a.Role,
+        RoleName = AccountRoles.Name(a.Role),
+        CreatedDate = a.CreatedDate,
+        CreatedTaskCount = createdTaskCount,
+    };
+
     public static DepartmentDto ToDto(this Department d) => new()
     {
         DepartmentId = d.DepartmentId,
