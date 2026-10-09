@@ -39,6 +39,8 @@ digraph ERD {
       <tr><td align="left">IsActive</td><td align="left">boolean</td></tr>
       <tr><td align="left">CreatedDate</td><td align="left">timestamp</td></tr>
       <tr><td align="left">ModifiedDate</td><td align="left">timestamp</td></tr>
+      <tr><td align="left" port="createdby"><b>FK</b> CreatedByID</td><td align="left">int</td></tr>
+      <tr><td align="left" port="updatedby"><b>FK</b> UpdatedByID</td><td align="left">int</td></tr>
     </table>>];
 
   TaskTag [label=<
@@ -56,10 +58,37 @@ digraph ERD {
       <tr><td align="left">Color</td><td align="left">varchar(7)</td></tr>
     </table>>];
 
+
+  SystemAccount [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="6" color="#94A3B8">
+      <tr><td bgcolor="#7C2D12" colspan="2"><font color="white"><b>SystemAccount</b></font></td></tr>
+      <tr><td align="left"><b>PK</b> AccountID</td><td align="left" port="pk">serial</td></tr>
+      <tr><td align="left">FullName</td><td align="left">varchar(100)</td></tr>
+      <tr><td align="left">Email (unique)</td><td align="left">varchar(255)</td></tr>
+      <tr><td align="left">PasswordHash (BCrypt)</td><td align="left">varchar(255)</td></tr>
+      <tr><td align="left">Role (0 Staff, 1 Admin)</td><td align="left">smallint</td></tr>
+      <tr><td align="left">CreatedDate</td><td align="left">timestamp</td></tr>
+    </table>>];
+
+  RefreshToken [label=<
+    <table border="0" cellborder="1" cellspacing="0" cellpadding="6" color="#94A3B8">
+      <tr><td bgcolor="#7C2D12" colspan="2"><font color="white"><b>RefreshToken</b></font></td></tr>
+      <tr><td align="left"><b>PK</b> RefreshTokenID</td><td align="left">serial</td></tr>
+      <tr><td align="left" port="fk"><b>FK</b> AccountID</td><td align="left">int</td></tr>
+      <tr><td align="left">TokenHash (SHA-256, unique)</td><td align="left">varchar(64)</td></tr>
+      <tr><td align="left">ExpiresAt</td><td align="left">timestamp</td></tr>
+      <tr><td align="left">CreatedDate</td><td align="left">timestamp</td></tr>
+      <tr><td align="left">RevokedAt</td><td align="left">timestamp</td></tr>
+    </table>>];
+
   { rank=same; Task; Tag; }
+  { rank=same; Project; SystemAccount; }
 
   Department:pk:e -> Project:fk:w [label="1 : N"];
   Project:pk:e -> Task:fk:w    [label="1 : N"];
   Task:pk:e -> TaskTag:task:w [label="1 : N"];
   Tag:pk:e -> TaskTag:tag:w  [label="1 : N"];
+  SystemAccount:pk:e -> Task:createdby:w [label="created by", style=dashed];
+  SystemAccount:pk:e -> Task:updatedby:w [label="updated by", style=dashed];
+  SystemAccount:pk:e -> RefreshToken:fk:w [label="1 : N"];
 }
