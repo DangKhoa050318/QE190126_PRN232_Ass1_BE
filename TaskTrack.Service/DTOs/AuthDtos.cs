@@ -28,11 +28,22 @@ public class LoginRequest
     public string Password { get; set; } = string.Empty;
 }
 
-/// <summary>Returned by a successful login: the signed JWT and the account it belongs to.</summary>
+public class RefreshTokenRequest
+{
+    [Required(ErrorMessage = "Refresh token is required.")]
+    public string RefreshToken { get; set; } = string.Empty;
+}
+
+/// <summary>Returned by login and refresh: the signed JWT, a refresh token and the account they belong to.</summary>
 public class AuthResponse
 {
     public string Token { get; set; } = string.Empty;
     public string TokenType { get; set; } = "Bearer";
     public DateTime ExpiresAt { get; set; }
+
+    /// <summary>Single-use token for POST /api/auth/refresh; each refresh returns a new one.</summary>
+    public string RefreshToken { get; set; } = string.Empty;
+    public DateTime RefreshTokenExpiresAt { get; set; }
+
     public AccountDto Account { get; set; } = new();
 }

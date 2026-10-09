@@ -25,4 +25,20 @@ public class AuthController(IAuthService service) : ControllerBase
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
     public async Task<ActionResult<AuthResponse>> Login(LoginRequest request) =>
         Ok(await service.LoginAsync(request));
+
+    /// <summary>Exchange a refresh token for a new token pair. Each refresh token works once (rotation).</summary>
+    [HttpPost("refresh")]
+    [ProducesResponseType<AuthResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status401Unauthorized)]
+    public async Task<ActionResult<AuthResponse>> Refresh(RefreshTokenRequest request) =>
+        Ok(await service.RefreshAsync(request));
+
+    /// <summary>Log out: revoke the refresh token. Always returns 204.</summary>
+    [HttpPost("logout")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<IActionResult> Logout(RefreshTokenRequest request)
+    {
+        await service.LogoutAsync(request);
+        return NoContent();
+    }
 }
