@@ -27,5 +27,13 @@ public partial class TaskManagementDbContext
             e.Property(x => x.Priority).ValueGeneratedNever();
             e.Property(x => x.CreatedDate).ValueGeneratedNever();
         });
+
+        modelBuilder.Entity<SystemAccount>(e =>
+        {
+            e.Property(x => x.Role).ValueGeneratedNever();
+            e.Property(x => x.CreatedDate).ValueGeneratedNever();
+        });
+
+        modelBuilder.Entity<RefreshToken>(e => e.Property(x => x.CreatedDate).ValueGeneratedNever());
     }
 }

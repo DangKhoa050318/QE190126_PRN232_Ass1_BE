@@ -16,6 +16,10 @@ public partial class TaskManagementDbContext : DbContext
 
     public virtual DbSet<Project> Projects { get; set; }
 
+    public virtual DbSet<RefreshToken> RefreshTokens { get; set; }
+
+    public virtual DbSet<SystemAccount> SystemAccounts { get; set; }
+
     public virtual DbSet<Tag> Tags { get; set; }
 
     public virtual DbSet<Task> Tasks { get; set; }
@@ -55,6 +59,46 @@ public partial class TaskManagementDbContext : DbContext
                 .HasConstraintName("FK_Project_Department");
         });
 
+        modelBuilder.Entity<RefreshToken>(entity =>
+        {
+            entity.HasKey(e => e.RefreshTokenId).HasName("RefreshToken_pkey");
+
+            entity.ToTable("RefreshToken");
+
+            entity.HasIndex(e => e.TokenHash, "UQ_RefreshToken_TokenHash").IsUnique();
+
+            entity.Property(e => e.RefreshTokenId).HasColumnName("RefreshTokenID");
+            entity.Property(e => e.AccountId).HasColumnName("AccountID");
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone");
+            entity.Property(e => e.ExpiresAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.RevokedAt).HasColumnType("timestamp without time zone");
+            entity.Property(e => e.TokenHash).HasMaxLength(64);
+
+            entity.HasOne(d => d.Account).WithMany(p => p.RefreshTokens)
+                .HasForeignKey(d => d.AccountId)
+                .HasConstraintName("FK_RefreshToken_Account");
+        });
+
+        modelBuilder.Entity<SystemAccount>(entity =>
+        {
+            entity.HasKey(e => e.AccountId).HasName("SystemAccount_pkey");
+
+            entity.ToTable("SystemAccount");
+
+            entity.HasIndex(e => e.Email, "UQ_SystemAccount_Email").IsUnique();
+
+            entity.Property(e => e.AccountId).HasColumnName("AccountID");
+            entity.Property(e => e.CreatedDate)
+                .HasDefaultValueSql("CURRENT_TIMESTAMP")
+                .HasColumnType("timestamp without time zone");
+            entity.Property(e => e.Email).HasMaxLength(255);
+            entity.Property(e => e.FullName).HasMaxLength(100);
+            entity.Property(e => e.PasswordHash).HasMaxLength(255);
+            entity.Property(e => e.Role).HasDefaultValue((short)0);
+        });
+
         modelBuilder.Entity<Tag>(entity =>
         {
             entity.HasKey(e => e.TagId).HasName("Tag_pkey");
@@ -75,6 +119,7 @@ public partial class TaskManagementDbContext : DbContext
             entity.ToTable("Task");
 
             entity.Property(e => e.TaskId).HasColumnName("TaskID");
+            entity.Property(e => e.CreatedById).HasColumnName("CreatedByID");
             entity.Property(e => e.CreatedDate)
                 .HasDefaultValueSql("CURRENT_TIMESTAMP")
                 .HasColumnType("timestamp without time zone");
@@ -84,11 +129,21 @@ public partial class TaskManagementDbContext : DbContext
             entity.Property(e => e.ProjectId).HasColumnName("ProjectID");
             entity.Property(e => e.Status).HasDefaultValue((short)0);
             entity.Property(e => e.Title).HasMaxLength(300);
+            entity.Property(e => e.UpdatedById).HasColumnName("UpdatedByID");
+
+            entity.HasOne(d => d.CreatedBy).WithMany(p => p.TaskCreatedBies)
+                .HasForeignKey(d => d.CreatedById)
+                .HasConstraintName("FK_Task_CreatedBy");
 
             entity.HasOne(d => d.Project).WithMany(p => p.Tasks)
                 .HasForeignKey(d => d.ProjectId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Task_Project");
+
+            entity.HasOne(d => d.UpdatedBy).WithMany(p => p.TaskUpdatedBies)
+                .HasForeignKey(d => d.UpdatedById)
+                .OnDelete(DeleteBehavior.SetNull)
+                .HasConstraintName("FK_Task_UpdatedBy");
 
             entity.HasMany(d => d.Tags).WithMany(p => p.Tasks)
                 .UsingEntity<Dictionary<string, object>>(
